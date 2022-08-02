@@ -1,7 +1,5 @@
 package com.example.demo;
 
-import org.apache.tomcat.util.http.fileupload.IOUtils;
-
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -38,6 +36,7 @@ public class Server {
                     });
                 } catch (Exception e) {
                     e.printStackTrace();
+                    System.out.println("\n");
                 }
             }
         } catch (IOException e) {
@@ -48,25 +47,55 @@ public class Server {
         try {
             System.out.println("Accepted connection..." + socket);
             InputStream inputStream = socket.getInputStream();
-            byte[] b = getBytesFromInputStream(inputStream);
-            System.out.println(new String(b));
-            /*BufferedReader in = new BufferedReader(new InputStreamReader(inputStream));
+            BufferedReader in = new BufferedReader(new InputStreamReader(inputStream));
             String input;
             StringBuilder total= new StringBuilder();
             ArrayList<String> request = new ArrayList<>();
-            while ((input = in.readLine())!=null){
-                request.add(input);
-                total.append(input);
-                System.out.println(""+input);
-                if (input.contains("Content-length")){
-                    int length = Integer.parseInt(input.split(":")[1].trim());
+            ArrayList<String> content = new ArrayList<>();
+            List<StringBuilder> content_ = new ArrayList<>();
+            String boundry = "";
+            String boundry_end = "";
+            int contentType_count = 0;
+            boolean content_present = true;
 
-                    byte[] content = new byte[length];
+            while (content_present){
+                if ((input = in.readLine())!=null){
+                    request.add(input);
+                    total.append(input);
+                    System.out.println(""+input);
+                    if (!boundry.equals("") && input.contains(boundry)){
+                        String data = "";
+                        boolean data_present = true;
+                        StringBuilder stringBuilder=new StringBuilder();
+                        while (data_present){
+                            data = in.readLine();
+                            content.add(data);
+                            System.out.println(data);
+                            if (data.contains(boundry)){
+                                content_.add(stringBuilder);
+                                stringBuilder = new StringBuilder();
+                            }
+                            stringBuilder.append(data);
+                            if (data.contains(boundry_end)){
+                                data_present = false;
+                                content_present = false;
+                            }
+                        }
+                    }
+                    if (input.contains("Content-Type") && contentType_count<1){
+                        contentType_count++;
+                        String[] b = input.split("boundary=");
+                        if (b.length>1 && b[1]!=null){
+                            boundry = b[1];
+                            boundry_end = boundry+"--";
+                        }
+                        else {
+
+                        }
+                    }
                 }
-            }
-            if (total.toString().isEmpty()){
-                System.out.println("hand-shake");
-                return;
+
+
             }
             String[] x = request.get(0).split(" ");
             String path = x[1];
@@ -113,7 +142,7 @@ public class Server {
                         }
                     }
                     break;
-            }*/
+            }
         } catch (Exception e) {
             System.out.printf(""+e);
         }
