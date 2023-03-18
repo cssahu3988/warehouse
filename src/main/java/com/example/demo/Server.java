@@ -94,8 +94,30 @@ public class Server {
                         }
                     }
                 }
-
-
+            }
+            ArrayList<Content> contents = new ArrayList<>();
+            if (content_.size()>0){
+                String file_name;
+                String file_type;
+                StringBuilder file_string= new StringBuilder();
+                boolean append=false;
+                File file;
+                Map<String,String> map = new HashMap<>();
+                for (StringBuilder s:content_){
+                    if (s.toString().contains("Content-Disposition")){
+                        String[] li = s.toString().split(":")[1].split(";");
+                        for (int i=0;i<li.length;i++){
+                            if (li[i].contains("=")){
+                                String[] s1 = li[i].replace("\"","").split("=");
+                                map.put(s1[0],s1[1]);
+                            }
+                        }
+                        break;
+                    }
+                }
+                for (StringBuilder s:content_){
+                    //System.out.println(s.toString().sp);
+                }
             }
             String[] x = request.get(0).split(" ");
             String path = x[1];
@@ -248,5 +270,9 @@ public class Server {
                 }
             }
         }
+    }
+
+    record Content(String type, File file, String filename) {
+
     }
 }
